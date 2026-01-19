@@ -1,6 +1,4 @@
-<?php
-
-?>
+<?php ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -29,7 +27,6 @@
       min-height: 100vh;
     }
 
-    /* Top brand */
     .top-bar {
       display: flex;
       justify-content: center;
@@ -72,7 +69,6 @@
       color: #9ca3af;
     }
 
-    /* Main grid */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 260px 1fr;
@@ -80,7 +76,6 @@
       align-items: flex-start;
     }
 
-    /* Sidebar */
     .sidebar .welcome-box {
       margin-bottom: 20px;
     }
@@ -143,7 +138,6 @@
       font-weight: 600;
     }
 
-    /* Content */
     .content-area {
       display: flex;
       flex-direction: column;
@@ -189,7 +183,6 @@
       color: #e5e7eb;
     }
 
-    /* Quick actions */
     .action-buttons {
       display: flex;
       flex-wrap: wrap;
@@ -233,7 +226,6 @@
 </head>
 <body>
   <main class="dashboard-container">
-    <!-- top brand -->
     <header class="top-bar">
       <div class="brand-centered">
         <div class="logo">
@@ -247,7 +239,6 @@
     </header>
 
     <section class="dashboard-grid">
-      <!-- left sidebar -->
       <aside class="sidebar">
         <div class="welcome-box">
           <h2>Hello, <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Admin'); ?></h2>
@@ -265,9 +256,8 @@
         </nav>
       </aside>
 
-      <!-- right content -->
       <section class="content-area">
-        <!-- stats card -->
+        <!-- System Overview -->
         <article class="dash-card">
           <div class="card-header">
             <h3>System Overview</h3>
@@ -292,7 +282,7 @@
           </div>
         </article>
 
-        <!-- latest registrations -->
+        <!-- Latest registrations -->
         <article class="dash-card">
           <div class="card-header">
             <h3>Latest Registrations</h3>
@@ -302,53 +292,54 @@
           <?php else: ?>
             <table style="width:100%; border-collapse:collapse; font-size:14px;">
               <thead>
-                <tr>
-                  <th style="text-align:left; padding:6px 4px;">Name</th>
-                  <th style="text-align:left; padding:6px 4px;">Email</th>
-                  <th style="text-align:left; padding:6px 4px;">Role</th>
-                  <th style="text-align:left; padding:6px 4px;">Status</th>
-                  <th style="text-align:left; padding:6px 4px;">Joined</th>
-                </tr>
+              <tr>
+                <th style="text-align:left; padding:6px 4px;">Name</th>
+                <th style="text-align:left; padding:6px 4px;">Email</th>
+                <th style="text-align:left; padding:6px 4px;">Role</th>
+                <th style="text-align:left; padding:6px 4px;">Status</th>
+                <th style="text-align:left; padding:6px 4px;">Joined</th>
+              </tr>
               </thead>
               <tbody>
-                <?php foreach ($recentUsers as $u): ?>
-                  <tr>
-                    <td style="padding:4px;"><?php echo htmlspecialchars($u['name']); ?></td>
-                    <td style="padding:4px;"><?php echo htmlspecialchars($u['email']); ?></td>
-                    <td style="padding:4px;"><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
-                    <td style="padding:4px;"><?php echo htmlspecialchars(ucfirst($u['status'])); ?></td>
-                    <td style="padding:4px;"><?php echo htmlspecialchars($u['created_at']); ?></td>
-                  </tr>
-                <?php endforeach; ?>
+              <?php foreach ($recentUsers as $u): ?>
+                <tr>
+                  <td style="padding:4px;"><?php echo htmlspecialchars($u['name']); ?></td>
+                  <td style="padding:4px;"><?php echo htmlspecialchars($u['email']); ?></td>
+                  <td style="padding:4px;"><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
+                  <td style="padding:4px;"><?php echo htmlspecialchars(ucfirst($u['status'])); ?></td>
+                  <td style="padding:4px;"><?php echo htmlspecialchars($u['created_at']); ?></td>
+                </tr>
+              <?php endforeach; ?>
               </tbody>
             </table>
           <?php endif; ?>
         </article>
 
-        <!-- quick actions -->
-        <article class="dash-card">
-          <div class="card-header">
-            <h3>Quick Actions</h3>
-          </div>
-          <div class="action-buttons">
-            <a href="admin_users.php?action=create_doctor" class="action-btn">
-              <span class="btn-icon">👨‍⚕️</span>
-              <span>Add Doctor</span>
-            </a>
-            <a href="admin_users.php" class="action-btn">
-              <span class="btn-icon">👥</span>
-              <span>View All Users</span>
-            </a>
-            <a href="admin_users.php?filter=pending" class="action-btn">
-              <span class="btn-icon">⏳</span>
-              <span>Pending Approvals</span>
-            </a>
-            <a href="admin_patients.php" class="action-btn">
-              <span class="btn-icon">🧑‍⚕️</span>
-              <span>View Patients</span>
-            </a>
-          </div>
-        </article>
+        <!-- Quick Actions -->
+       <article class="dash-card">
+  <div class="card-header">
+    <h3>Quick Actions</h3>
+  </div>
+  <div class="action-buttons">
+    <a href="admin_doctors.php" class="action-btn">
+      <span class="btn-icon">👨‍⚕️</span>
+      <span>Add Doctor</span>
+    </a>
+    <a href="admin_users.php" class="action-btn">
+      <span class="btn-icon">👥</span>
+      <span>View All Users</span>
+    </a>
+    <a href="admin_users.php#pending" class="action-btn">
+      <span class="btn-icon">⏳</span>
+      <span>Pending Approvals</span>
+    </a>
+    <a href="admin_patients.php" class="action-btn">
+      <span class="btn-icon">🧑‍⚕️</span>
+      <span>View Patients</span>
+    </a>
+  </div>
+</article>
+
       </section>
     </section>
   </main>

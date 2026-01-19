@@ -1,5 +1,7 @@
-<?php $msg = $message ?? ""; ?>
-
+<?php
+// AuthController theke ba root login.php theke $message pathale oita niye nicchi
+$msg = $message ?? "";
+?>
 <!doctype html>
 <html lang="en">
 <head>
