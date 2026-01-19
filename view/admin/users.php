@@ -30,6 +30,11 @@
       border:1px solid rgba(52,211,153,.5);
       color:#bbf7d0;
     }
+    .msg-error{
+      background:rgba(239,68,68,.15);
+      border-color:rgba(239,68,68,.6);
+      color:#fecaca;
+    }
     .card{
       background:#020617;
       border-radius:14px;
@@ -63,9 +68,6 @@
     .status-pending{background:rgba(234,179,8,.15);color:#facc15;}
     .status-approved{background:rgba(34,197,94,.18);color:#4ade80;}
     .status-rejected{background:rgba(239,68,68,.18);color:#fca5a5;}
-    .inline-form{
-      display:inline;
-    }
     .btn-small{
       border-radius:999px;
       border:none;
@@ -84,6 +86,10 @@
       color:#fecaca;
       border:1px solid rgba(239,68,68,.6);
     }
+    .btn-small[disabled]{
+      opacity:.5;
+      cursor:not-allowed;
+    }
     .top-link{margin-bottom:14px;font-size:13px;}
   </style>
 </head>
@@ -95,54 +101,52 @@
 
     <h1>Manage Users</h1>
 
-    <?php if (!empty($msg)): ?>
-      <div class="msg"><?php echo htmlspecialchars($msg); ?></div>
-    <?php endif; ?>
+    <div id="flash-msg"
+         class="msg"
+         style="display:<?php echo empty($msg) ? 'none' : 'block'; ?>;">
+      <?php echo htmlspecialchars($msg ?? ''); ?>
+    </div>
 
-    <section class="card">
-      <h2>Pending Approvals</h2>
+    <section class="card" id="pending">
+      <h2>Pending Approvals (AJAX)</h2>
       <?php if (empty($pendingUsers)): ?>
         <p style="font-size:13px;color:#9ca3af;">No pending users.</p>
       <?php else: ?>
         <table>
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th>Actions</th>
-            </tr>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
           </thead>
           <tbody>
-            <?php foreach ($pendingUsers as $u): ?>
-              <tr>
-                <td><?php echo htmlspecialchars($u['name']); ?></td>
-                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                <td><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
-                <td>
-                  <span class="status-badge status-<?php echo htmlspecialchars($u['status']); ?>">
-                    <?php echo htmlspecialchars($u['status']); ?>
-                  </span>
-                </td>
-                <td><?php echo htmlspecialchars($u['created_at']); ?></td>
-                <td>
-                  <form class="inline-form" method="post">
-                    <input type="hidden" name="user_id" value="<?php echo (int)$u['id']; ?>">
-                    <button class="btn-small btn-approve" name="action" value="approve" type="submit">
-                      Approve
-                    </button>
-                  </form>
-                  <form class="inline-form" method="post">
-                    <input type="hidden" name="user_id" value="<?php echo (int)$u['id']; ?>">
-                    <button class="btn-small btn-reject" name="action" value="reject" type="submit">
-                      Reject
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            <?php endforeach; ?>
+          <?php foreach ($pendingUsers as $u): ?>
+            <tr data-user-id="<?php echo (int)$u['id']; ?>">
+              <td><?php echo htmlspecialchars($u['name']); ?></td>
+              <td><?php echo htmlspecialchars($u['email']); ?></td>
+              <td><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
+              <td>
+                <span class="status-badge status-<?php echo htmlspecialchars($u['status']); ?>">
+                  <?php echo htmlspecialchars($u['status']); ?>
+                </span>
+              </td>
+              <td><?php echo htmlspecialchars($u['created_at']); ?></td>
+              <td>
+                <button class="btn-small btn-approve js-approve"
+                        data-action="approve">
+                  Approve
+                </button>
+                <button class="btn-small btn-reject js-reject"
+                        data-action="reject">
+                  Reject
+                </button>
+              </td>
+            </tr>
+          <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
@@ -155,32 +159,110 @@
       <?php else: ?>
         <table>
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-            </tr>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Joined</th>
+          </tr>
           </thead>
           <tbody>
-            <?php foreach ($allUsers as $u): ?>
-              <tr>
-                <td><?php echo htmlspecialchars($u['name']); ?></td>
-                <td><?php echo htmlspecialchars($u['email']); ?></td>
-                <td><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
-                <td>
-                  <span class="status-badge status-<?php echo htmlspecialchars($u['status']); ?>">
-                    <?php echo htmlspecialchars($u['status']); ?>
-                  </span>
-                </td>
-                <td><?php echo htmlspecialchars($u['created_at']); ?></td>
-              </tr>
-            <?php endforeach; ?>
+          <?php foreach ($allUsers as $u): ?>
+            <tr>
+              <td><?php echo htmlspecialchars($u['name']); ?></td>
+              <td><?php echo htmlspecialchars($u['email']); ?></td>
+              <td><?php echo htmlspecialchars(ucfirst($u['role'])); ?></td>
+              <td>
+                <span class="status-badge status-<?php echo htmlspecialchars($u['status']); ?>">
+                  <?php echo htmlspecialchars($u['status']); ?>
+                </span>
+              </td>
+              <td><?php echo htmlspecialchars($u['created_at']); ?></td>
+            </tr>
+          <?php endforeach; ?>
           </tbody>
         </table>
       <?php endif; ?>
     </section>
   </main>
+
+  <script>
+    // Simple helper to show flash message (from JSON)
+    function showFlash(message, isError) {
+      var box = document.getElementById('flash-msg');
+      box.textContent = message;
+      box.style.display = 'block';
+      if (isError) {
+        box.classList.add('msg-error');
+      } else {
+        box.classList.remove('msg-error');
+      }
+      // auto hide after 3 sec
+      setTimeout(function () {
+        box.style.display = 'none';
+      }, 3000);
+    }
+
+    function handleActionClick(event) {
+      var btn = event.target;
+      if (!btn.dataset.action) return;
+
+      var row = btn.closest('tr');
+      var userId = row.getAttribute('data-user-id');
+      var action = btn.dataset.action;
+
+      // Disable buttons
+      var approveBtn = row.querySelector('.js-approve');
+      var rejectBtn = row.querySelector('.js-reject');
+      approveBtn.disabled = true;
+      rejectBtn.disabled = true;
+
+      var formData = new FormData();
+      formData.append('user_id', userId);
+      formData.append('action', action);
+
+      fetch('api_admin_users.php', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin' // IMPORTANT: send PHP session cookie
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (!data.success) {
+            showFlash(data.message || 'Something went wrong', true);
+            approveBtn.disabled = false;
+            rejectBtn.disabled = false;
+            return;
+          }
+
+          // Update badge/status in row
+          var badge = row.querySelector('.status-badge');
+          badge.textContent = data.new_status;
+          badge.classList.remove('status-pending','status-approved','status-rejected');
+          badge.classList.add('status-' + data.new_status);
+
+          // After approve/reject hide row from pending list
+          row.parentNode.removeChild(row);
+
+          showFlash(data.message, false);
+        })
+        .catch(function () {
+          showFlash('Network error', true);
+          approveBtn.disabled = false;
+          rejectBtn.disabled = false;
+        });
+    }
+
+    // Attach click handlers (event delegation)
+    var pendingTable = document.querySelector('#pending tbody');
+    if (pendingTable) {
+      pendingTable.addEventListener('click', function (e) {
+        if (e.target.matches('.js-approve') || e.target.matches('.js-reject')) {
+          handleActionClick(e);
+        }
+      });
+    }
+  </script>
 </body>
 </html>
